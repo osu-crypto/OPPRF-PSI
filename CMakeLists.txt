@@ -10,11 +10,7 @@ option(PSI_ANALYTICS_BUILD_EXAMPLE "Build PSI analytics example" ON)
 set(PSI_ANALYTICS_SOURCE_ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 set(PSI_ANALYTICS_BINARY_ROOT "${CMAKE_CURRENT_BINARY_DIR}")
 
-set(Boost_USE_STATIC_LIBS OFF CACHE BOOL "Use shared boost libraries" FORCE)
-set(Boost_USE_STATIC_RUNTIME OFF CACHE BOOL "Use shared boost runtime" FORCE)
 
-find_package(Boost COMPONENTS system filesystem REQUIRED)
-find_package(Threads REQUIRED)
 
 set(ENABLE_RELIC ON CACHE BOOL "Build relic by default" FORCE)
 set(MULTI PTHREAD CACHE STRING "Build relic with multithreading from pthread" FORCE)
@@ -79,10 +75,30 @@ elseif (NOT libOTe_FOUND AND NOT TARGET libOTe::libote)
     endif ()
     add_subdirectory(extern/libOTe)
 endif ()
+############################################
+include_directories("${CMAKE_SOURCE_DIR}")
+
+# default location for libOTe
+# set(libOTe_Dirs "${CMAKE_SOURCE_DIR}/libOTe/")
+# include_directories("${libOTe_Dirs}/") 
+# include_directories("${libOTe_Dirs}/cryptoTools") 
+
+
+# default location for Boost
+set(BOOST_ROOT "/usr/local/apps/boost")
+include_directories("${BOOST_ROOT}")
+
+set(Boost_USE_STATIC_LIBS        ON) # only find static libs
+set(Boost_USE_MULTITHREADED      ON)
+set(Boost_USE_STATIC_RUNTIME     ON)
+
+find_package(Boost  COMPONENTS system thread)
 
 add_dependencies(libOTe relic_s)
 
 add_subdirectory(psi_analytics_eurocrypt19)
+
+################################################
 
 if (PSI_ANALYTICS_BUILD_TESTS)
     if (NOT EXISTS "${PROJECT_SOURCE_DIR}/extern/googletest/CMakeLists.txt")
